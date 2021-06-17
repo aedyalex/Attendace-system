@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+    <style>
+        table {
+            font-family: Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            width: 50%;
+            text-align:center;
+        }
+        td, th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: center;
+            background-color: #04AA6D;
+            color: white;
+         }
+
+        tr:nth-child(even){
+            background-color: #f2f2f2;
+        }
+
+        div.container {
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align:center">Lista cu utilizatorii care au incercat sa acceseze aplicatia in timp real</h1>
+    <div class="container">
+    <table>
+        <thead>
+        <tr>
+            <th>Nume</th>
+            <th>Status</th>
+            <th>Data</th>
+        </tr>
+        </thead>
+        <tbody>
+<!--        {% for item in content %}-->
+<!--            <tr>-->
+<!--                <td>{{ item.name }}</td>-->
+<!--                {% if(item.status == "denied") %}-->
+<!--                    <td style="color:red">{{ item.status }}</td>-->
+<!--                {% else %}-->
+<!--                    <td style="color:green">{{ item.status }}</td>-->
+<!--                {% endif %}-->
+
+<!--                <td>{{ item.time }}</td>-->
+<!--            </tr>-->
+<!--        {% endfor %}-->
+        </tbody>
+    </table>
+    </div>
+
+</body>
+<script>
+    setInterval(function(){
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET','/get-data',true);
+
+        xhr.onreadystatechange = () => {
+            var new_body = document.createElement('tbody');
+            data = JSON.parse(xhr.responseText);
+            data.sort((a,b) => {
+			if(parseInt(a.time) < parseInt(b.time))
+			{
+				return 1;
+			}
+			else
+			{
+				return -1;
+			}
+		});
+
+            for(let i=0;i<data.length;i++)
+            {
+                var row = document.createElement('tr');
+                var cell1 = document.createElement('td');
+                cell1.innerHTML = data[i].name;
+                row.appendChild(cell1);
+
+                var cell2 = document.createElement('td');
+                if(data[i].status == "denied")
+                {
+                    cell2.style.color = "red";
+                }
+                else
+                {
+                    cell2.style.color = "green";
+                }
+                cell2.innerHTML = data[i].status;
+                row.appendChild(cell2);
+
+                var cell3 = document.createElement('td');
+                cell3.innerHTML = data[i].time;
+                row.appendChild(cell3);
+
+                new_body.appendChild(row);
+            }
+
+            old_table = document.getElementsByTagName('table')[0];
+            old_body = document.getElementsByTagName('tbody')[0];
+            old_table.replaceChild(new_body, old_body);
+            console.log(data);
+        }
+
+        xhr.send();
+    }, 1000);
+</script>
+</html>
